@@ -22,6 +22,7 @@
 #include "rib_converter_polydata.h"
 #include "rib_converter_string.h"
 #include "rib_converter_image.h"
+#include "rib_converter_ndarray.h"
 
 
 //----------------------------------------------------------------------
@@ -43,6 +44,7 @@ ROS_IGTL_Bridge::ROS_IGTL_Bridge(int argc, char *argv[], const char* node_name)
   RIBConverterString* string = new RIBConverterString;
   RIBConverterImage* image = new RIBConverterImage;
   RIBConverterPointCloud* pointcloud = new RIBConverterPointCloud;
+//  RIBConverterNDArray* ndarray = new RIBConverterNDArray;
   
   this->converterManager->AddConverter(point, 10, "/IGTL_POINT_IN", "/IGTL_POINT_OUT");
   this->converterManager->AddConverter(transform, 10, "/IGTL_TRANSFORM_IN", "/IGTL_TRANSFORM_OUT");
@@ -50,6 +52,7 @@ ROS_IGTL_Bridge::ROS_IGTL_Bridge(int argc, char *argv[], const char* node_name)
   this->converterManager->AddConverter(string, 10, "/IGTL_STRING_IN", "/IGTL_STRING_OUT");
   this->converterManager->AddConverter(image, 10, "/IGTL_IMAGE_IN", "/IGTL_IMAGE_OUT");
   this->converterManager->AddConverter(pointcloud, 10, "/IGTL_POINTCLOUD_IN", "/IGTL_POINTCLOUD_OUT");
+//  this->converterManager->AddConverter(ndarray, 10, "/IGTL_NDARRAY_IN", "/IGTL_NDARRAY_OUT");
 
   // run bridge as client or server
   std::string type;

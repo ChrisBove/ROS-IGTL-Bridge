@@ -59,6 +59,7 @@ find_package(OpenIGTLink REQUIRED)
    igtlimage.msg
    igtlpolydata.msg
    igtlstring.msg
+   igtlndarray.msg
    vector.msg
  )
 
@@ -142,6 +143,7 @@ add_library(${PROJECT_NAME}_lib
   src/rib_converter_string.cpp
   src/rib_converter_transform.cpp
   src/rib_converter_image.cpp
+  src/rib_converter_ndarray.cpp
   src/ros_igtl_bridge.cpp
  )
 
@@ -173,7 +175,8 @@ target_link_libraries(${PROJECT_NAME}_lib ${VTK_LIBRARIES})
 target_link_libraries(${PROJECT_NAME}_lib OpenIGTLink)
 
 target_link_libraries(${PROJECT_NAME}_test ${catkin_LIBRARIES}  )
-target_link_libraries(${PROJECT_NAME}_test ${VTK_LIBRARIES})
+target_link_libraries(${PROJECT_NAME}_test ${VTK_LIBRARIES} ${OpenCV_LIBRARIES})
+# had to add openCV as explained here: https://github.com/ros-perception/vision_opencv/issues/192
 
 ## TODO: Remove the dependency on OpenIGTLink
 target_link_libraries(${PROJECT_NAME}_test OpenIGTLink)
