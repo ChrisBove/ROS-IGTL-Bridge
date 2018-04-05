@@ -31,7 +31,7 @@ ROS_IGTL_Bridge::ROS_IGTL_Bridge(int argc, char *argv[], const char* node_name)
 
   this->isServer = false;
   
-  this->nh = new ros::NodeHandle;
+  this->nh = new ros::NodeHandle("~");
   
   this->converterManager = new RIBConverterManager;
   this->converterManager->SetNodeHandle(this->nh);
@@ -44,16 +44,16 @@ ROS_IGTL_Bridge::ROS_IGTL_Bridge(int argc, char *argv[], const char* node_name)
   RIBConverterImage* image = new RIBConverterImage;
   RIBConverterPointCloud* pointcloud = new RIBConverterPointCloud;
   
-  this->converterManager->AddConverter(point, 10, "IGTL_POINT_IN", "IGTL_POINT_OUT");
-  this->converterManager->AddConverter(transform, 10, "IGTL_TRANSFORM_IN", "IGTL_TRANSFORM_OUT");
-  this->converterManager->AddConverter(polydata, 10, "IGTL_POLYDATA_IN", "IGTL_POLYDATA_OUT");
-  this->converterManager->AddConverter(string, 10, "IGTL_STRING_IN", "IGTL_STRING_OUT");
-  this->converterManager->AddConverter(image, 10, "IGTL_IMAGE_IN", "IGTL_IMAGE_OUT");
-  this->converterManager->AddConverter(pointcloud, 10, "IGTL_POINTCLOUD_IN", "IGTL_POINTCLOUD_OUT");
+  this->converterManager->AddConverter(point, 10, "/IGTL_POINT_IN", "/IGTL_POINT_OUT");
+  this->converterManager->AddConverter(transform, 10, "/IGTL_TRANSFORM_IN", "/IGTL_TRANSFORM_OUT");
+  this->converterManager->AddConverter(polydata, 10, "/IGTL_POLYDATA_IN", "/IGTL_POLYDATA_OUT");
+  this->converterManager->AddConverter(string, 10, "/IGTL_STRING_IN", "/IGTL_STRING_OUT");
+  this->converterManager->AddConverter(image, 10, "/IGTL_IMAGE_IN", "/IGTL_IMAGE_OUT");
+  this->converterManager->AddConverter(pointcloud, 10, "/IGTL_POINTCLOUD_IN", "/IGTL_POINTCLOUD_OUT");
 
   // run bridge as client or server
   std::string type;
-  if(nh->getParam("/RIB_type",type))
+  if(nh->getParam("RIB_type",type))
     {
     if(type == "client")
       {
@@ -103,7 +103,7 @@ ROS_IGTL_Bridge::ROS_IGTL_Bridge(int argc, char *argv[], const char* node_name)
   
   if (this->isServer)
     {
-    if(this->nh->getParam("/RIB_port", this->port))
+    if(this->nh->getParam("RIB_port", this->port))
       {}
     else
       {
@@ -114,7 +114,7 @@ ROS_IGTL_Bridge::ROS_IGTL_Bridge(int argc, char *argv[], const char* node_name)
   else // if this is a client
     {
     // get IP address
-    if(nh->getParam("/RIB_server_ip", this->address))
+    if(nh->getParam("RIB_server_ip", this->address))
       {}
     else
       {
@@ -122,7 +122,7 @@ ROS_IGTL_Bridge::ROS_IGTL_Bridge(int argc, char *argv[], const char* node_name)
       std::cin >> this->address;
       }
     // get port
-    if(nh->getParam("/RIB_port",this->port))
+    if(nh->getParam("RIB_port",this->port))
       {}
     else
       {
