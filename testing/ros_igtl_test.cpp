@@ -33,6 +33,7 @@
 #include <vtkPolyDataReader.h>
 
 #include <igtlTypes.h>
+#include <igtlNDArrayMessage.h>
 
 //----------------------------------------------------------------------
 ROS_IGTL_Test::ROS_IGTL_Test(int argc, char *argv[], const char* node_name)
@@ -48,12 +49,14 @@ ROS_IGTL_Test::ROS_IGTL_Test(int argc, char *argv[], const char* node_name)
   string_pub = nh->advertise<ros_igtl_bridge::igtlstring>("IGTL_STRING_OUT", 15);
   image_pub = nh->advertise<ros_igtl_bridge::igtlimage>("IGTL_IMAGE_OUT", 3);
   pointcloud_pub = nh->advertise<ros_igtl_bridge::igtlpointcloud>("IGTL_POINTCLOUD_OUT", 2);  
+  ndarray_pub = nh->advertise<ros_igtl_bridge::igtlndarray>("IGTL_NDARRAY_OUT", 3);
   // declare subscriber
   sub_point = nh->subscribe("IGTL_POINT_IN", 10, &ROS_IGTL_Test::pointCallback,this);  
   sub_transform = nh->subscribe("IGTL_TRANSFORM_IN", 10, &ROS_IGTL_Test::transformCallback,this);  
   sub_string = nh->subscribe("IGTL_STRING_IN", 20, &ROS_IGTL_Test::stringCallback,this); 
   sub_image = nh->subscribe("IGTL_IMAGE_IN", 1, &ROS_IGTL_Test::imageCallback,this); 
   sub_polydata = nh->subscribe("IGTL_POLYDATA_IN", 1, &ROS_IGTL_Test::polydataCallback,this); 
+  sub_ndarray = nh->subscribe("IGTL_NDARRAY_IN", 1, &ROS_IGTL_Test::ndarrayCallback,this);
 
   test_sending();
 	
@@ -133,6 +136,65 @@ void ROS_IGTL_Test::polydataCallback(const ros_igtl_bridge::igtlpolydata::ConstP
 }
 
 //----------------------------------------------------------------------
+void ROS_IGTL_Test::ndarrayCallback(const ros_igtl_bridge::igtlndarray::ConstPtr& msg)
+{
+  ROS_INFO("[ROS_IGTL_Test] NDArray %s received: \n", msg->name.c_str());
+
+  unsigned length = 0;
+  for (int i = 0; i < msg->size.size(); i++) {
+      length += msg->size.at(i);
+  }
+
+  ROS_INFO_STREAM("NDArray dim: " << (unsigned) msg->dim << " type: " << (unsigned) msg->scalar_type << " length: " << length << " contents:");
+
+  unsigned index = 0;
+  for (int i = 0; i < msg->size.size(); i++ )
+    {
+      for (int j = 0; j < msg->size.at(i); j++)
+	{
+	  index++;
+
+	  switch(msg->scalar_type) {
+	    case igtl::NDArrayMessage::TYPE_INT8:
+	      cout << (int) msg->data_int8[index];
+	      break;
+	    case igtl::NDArrayMessage::TYPE_UINT8:
+	      cout << (char) msg->data_uint8[index];
+	      break;
+	    case igtl::NDArrayMessage::TYPE_INT16:
+	      cout << (int) msg->data_int16[index];
+	      break;
+	    case igtl::NDArrayMessage::TYPE_UINT16:
+	      cout << (unsigned) msg->data_uint16[index];
+	      break;
+	    case igtl::NDArrayMessage::TYPE_INT32:
+	      cout << (int) msg->data_int32[index];
+	      break;
+	    case igtl::NDArrayMessage::TYPE_UINT32:
+	      cout << (unsigned) msg->data_uint32[index];
+	      break;
+	    case igtl::NDArrayMessage::TYPE_FLOAT32:
+	      cout << (float) msg->data_float32[index];
+	      break;
+	    case igtl::NDArrayMessage::TYPE_FLOAT64:
+	      cout << (double) msg->data_float64[index];
+	      break;
+	    case igtl::NDArrayMessage::TYPE_COMPLEX:
+	      ROS_ERROR("[ROS-IGTL-Bridge] Complex number handling not implemented.");
+	      return;
+	      break;
+	    default:
+	      ROS_ERROR("[ROS-IGTL-Bridge] Unrecognized scalar type of %u on NDARRAY.", (unsigned) msg->scalar_type);
+	      return;
+	      break;
+	  }
+	  cout << " ";
+	}
+      cout << std::endl;
+    }
+}
+
+//----------------------------------------------------------------------
 void ROS_IGTL_Test::test_sending()
 {
   srand((unsigned int)time(NULL));
@@ -147,6 +209,8 @@ void ROS_IGTL_Test::test_sending()
   while(!pointcloud_pub.getNumSubscribers())
     {}
   while(!polydata_pub.getNumSubscribers())
+    {}
+  while(!ndarray_pub.getNumSubscribers())
     {}
 	
   //-----------------------------------
@@ -215,6 +279,18 @@ void ROS_IGTL_Test::test_sending()
   string_msg.data = "Test1";
   string_pub.publish(string_msg);
 	
+  // -----------------------------------------------------------------
+  // send ndarray
+  ros_igtl_bridge::igtlndarray ndarray_msg;
+  ndarray_msg.name = "ROS_IGTL_Test_NDArray";
+  ndarray_msg.dim = 4;
+  ndarray_msg.scalar_type = igtl::NDArrayMessage::TYPE_INT8;
+  std::vector<std::int8_t> array = {0, 1, 2, 3, 4, 5, 6, 7, 8, 9};
+  std::vector<igtlUint16> array_size = {1,2,3,4};
+  ndarray_msg.data_int8 = array;
+  ndarray_msg.size = array_size;
+  ndarray_pub.publish(ndarray_msg);
+
   // -----------------------------------------------------------------
   // send PD
   std::string test_pd;

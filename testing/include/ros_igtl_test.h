@@ -33,6 +33,7 @@
 #include "ros_igtl_bridge/igtlpolydata.h"
 #include "ros_igtl_bridge/igtlimage.h"
 #include "ros_igtl_bridge/igtlstring.h"
+#include "ros_igtl_bridge/igtlndarray.h"
 
 // C++ Includes
 #include <cstdlib>
@@ -80,12 +81,14 @@ private:
   ros::Publisher image_pub;
   ros::Publisher string_pub;
   ros::Publisher pointcloud_pub;
+  ros::Publisher ndarray_pub;
   
   ros::Subscriber sub_point;
   ros::Subscriber sub_transform;
   ros::Subscriber sub_polydata;
   ros::Subscriber sub_image;
   ros::Subscriber sub_string;
+  ros::Subscriber sub_ndarray;
   
   virtual void pointCallback(const ros_igtl_bridge::igtlpoint::ConstPtr& msg);
   virtual void transformCallback(const ros_igtl_bridge::igtltransform::ConstPtr& msg);
@@ -93,6 +96,7 @@ private:
   //virtual void imageCallback(const sensor_msgs::Image::ConstPtr& msg);
   virtual void imageCallback(const ros_igtl_bridge::igtlimage::ConstPtr& msg);
   virtual void polydataCallback(const ros_igtl_bridge::igtlpolydata::ConstPtr& msg);
+  virtual void ndarrayCallback(const ros_igtl_bridge::igtlndarray::ConstPtr& msg);
 
  private:
   ros_igtl_bridge::igtlpolydata polyDataToMsg(const char* name, vtkSmartPointer<vtkPolyData> polydata);
