@@ -57,32 +57,107 @@ int RIBConverterNDArray::onIGTLMessage(igtl::MessageHeader * header)
 	  msg.size = ndarrayMsg->GetArray()->GetSize();
 
 	  igtl::ArrayBase* arrayBase = ndarrayMsg->GetArray();
+	  igtl::ArrayBase::IndexType index(ndarrayMsg->GetArray()->GetSize());
+
+	  // get total index size of array
+	  unsigned length = 0;
+	  for (unsigned i = 0; i < arrayBase->GetSize().size(); i++) {
+		  length += arrayBase->GetSize().at(i);
+	  }
+
+	  std::vector<std::int8_t> int8_vector;
+	  std::vector<std::uint8_t> uint8_vector;
+	  std::vector<std::int16_t> int16_vector;
+	  std::vector<std::uint16_t> uint16_vector;
+	  std::vector<std::int32_t> int32_vector;
+	  std::vector<std::uint32_t> uint32_vector;
+	  std::vector<float> float32_vector;
+	  std::vector<double> float64_vector;
+
+	  igtl_int8* array_ptr_int8;
+	  igtl_uint8* array_ptr_uint8;
+	  igtl_int16* array_ptr_int16;
+	  igtl_uint16* array_ptr_uint16;
+	  igtl_int32* array_ptr_int32;
+	  igtl_uint32* array_ptr_uint32;
+	  igtl_float32* array_ptr_float32;
+	  igtl_float64* array_ptr_float64;
 
 	  // following https://github.com/openigtlink/OpenIGTLink/blob/master/Documents/Protocol/ndarray.md
 	  switch(ndarrayMsg->GetType()) {
 	  case igtl::NDArrayMessage::TYPE_INT8:
-		  // TODO stuff the data into the message
+		  array_ptr_int8 = (igtl_int8 *) arrayBase->GetRawArray();
+		  int8_vector.reserve(length);
+		  for (int i = 0; i < length; i++) {
+			  int8_vector.push_back(array_ptr_int8[i]);
+		  }
+
+		  msg.data_int8 = int8_vector;
 		  break;
 	  case igtl::NDArrayMessage::TYPE_UINT8:
+		  array_ptr_uint8 = (igtl_uint8 *) arrayBase->GetRawArray();
+		  uint8_vector.reserve(length);
+		  for (int i = 0; i < length; i++) {
+			  uint8_vector.push_back(array_ptr_uint8[i]);
+		  }
 
+		  msg.data_uint8 = uint8_vector;
 		  break;
 	  case igtl::NDArrayMessage::TYPE_INT16:
+		  array_ptr_int16 = (igtl_int16 *) arrayBase->GetRawArray();
+		  int16_vector.reserve(length);
+		  for (int i = 0; i < length; i++) {
+			  int16_vector.push_back(array_ptr_int16[i]);
+		  }
 
+		  msg.data_int16 = int16_vector;
 		  break;
 	  case igtl::NDArrayMessage::TYPE_UINT16:
+		  array_ptr_uint16 = (igtl_uint16 *) arrayBase->GetRawArray();
+		  uint16_vector.reserve(length);
+		  for (int i = 0; i < length; i++) {
+			  uint16_vector.push_back(array_ptr_uint16[i]);
+		  }
 
+		  msg.data_uint16 = uint16_vector;
 		  break;
 	  case igtl::NDArrayMessage::TYPE_INT32:
+		  array_ptr_int32 = (igtl_int32 *) arrayBase->GetRawArray();
+		  int32_vector.reserve(length);
+		  for (int i = 0; i < length; i++) {
+			  int32_vector.push_back(array_ptr_int32[i]);
+		  }
+
+		  msg.data_int32 = int32_vector;
 
 		  break;
 	  case igtl::NDArrayMessage::TYPE_UINT32:
+		  array_ptr_uint32 = (igtl_uint32 *) arrayBase->GetRawArray();
+		  uint32_vector.reserve(length);
+		  for (int i = 0; i < length; i++) {
+			  uint32_vector.push_back(array_ptr_uint32[i]);
+		  }
+
+		  msg.data_uint32 = uint32_vector;
 
 		  break;
 	  case igtl::NDArrayMessage::TYPE_FLOAT32:
+		  array_ptr_float32 = (igtl_float32 *) arrayBase->GetRawArray();
+		  float32_vector.reserve(length);
+		  for (int i = 0; i < length; i++) {
+			  float32_vector.push_back(array_ptr_float32[i]);
+		  }
 
+		  msg.data_float32 = float32_vector;
 		  break;
 	  case igtl::NDArrayMessage::TYPE_FLOAT64:
+		  array_ptr_float64 = (igtl_float64 *) arrayBase->GetRawArray();
+		  float64_vector.reserve(length);
+		  for (int i = 0; i < length; i++) {
+			  float64_vector.push_back(array_ptr_float64[i]);
+		  }
 
+		  msg.data_float64 = float64_vector;
 		  break;
 	  case igtl::NDArrayMessage::TYPE_COMPLEX:
 		  ROS_ERROR("[ROS-IGTL-Bridge] Complex number handling not implemented.");
