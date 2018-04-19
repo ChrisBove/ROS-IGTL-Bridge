@@ -116,17 +116,64 @@ void RIBConverterNDArray::onROSMessage(const ros_igtl_bridge::igtlndarray::Const
   igtl::NDArrayMessage::Pointer ndArrayMsg = igtl::NDArrayMessage::New();
   ndArrayMsg->SetDeviceName(msg->name);
 
-  igtl::ArrayBase* arrayBase;
-  // TODO fill in the array based on type in msg
 
+//  std::vector<igtlUint16> size(msg->size);
+  igtl::ArrayBase::IndexType index(msg->size);
+  ROS_INFO("Index size: %lu", index.size());
+  igtl::Array<igtl_int8> array_int8;
+  igtl::Array<igtl_uint8> array_uint8;
+
+  unsigned length = 0;
+
+  ROS_INFO("Finding total index size of array");
+  // get total index size of array
+  for (unsigned i = 0; i < msg->size.size(); i++) {
+	  length += msg->size.at(i);
+  }
+  ROS_INFO("Array length: %u", length);
+  igtl_int8 arrayInt8[length];
+
+  // TODO fill in the array based on type in msg
+  //		  array_int8.SetValue(index++,msg->data_int8[i]);
+
+  igtl::ArrayBase* arrayBase;
+
+
+  ROS_INFO("Filling array");
   switch(msg->scalar_type) {
   case igtl::NDArrayMessage::TYPE_INT8:
-//	  igtl::Array<igtl_int8> array_int8;
-//	  array_int8.SetSize()
+	  array_int8.SetSize(msg->size);
+
+	  ROS_INFO("array set size: %lu", array_int8.GetSize().size());
+	  ROS_INFO("Array size(0): %i", array_int8.GetSize().at(0));
+	  ROS_INFO("Array size(1): %i", array_int8.GetSize().at(1));
+
+	  index = array_int8.GetSize();
+
+	  for (int i = 0; i < length; i++) {
+		  arrayInt8[i] = (igtl_int8) msg->data_int8.at(i);
+	  }
+
+	  ROS_INFO("Set array:");
+
+//	  array_int8.SetArray((void*) msg->data_int8.begin());
+	  array_int8.SetArray((void*) arrayInt8);
+
+//	  for (int i = 0; i < length; i++) {
+//		  index.at(i) = msg->data_int8[i];
+//	  }
+
+//	  ROS_INFO("Set array base");
+//	  arrayBase->SetSize(array_int8.GetSize());
 //	  arrayBase->SetArray(&array_int8);
+
+	  ROS_INFO("Set msg Array");
+	  ndArrayMsg->SetArray(msg->scalar_type, &array_int8);
+
+	  ROS_INFO("Array msg size: %i", ndArrayMsg->GetArray()->GetDimension());
 	  break;
   case igtl::NDArrayMessage::TYPE_UINT8:
-//	  igtl::Array<igtl_uint8> array_uint8;
+//
 	  break;
   case igtl::NDArrayMessage::TYPE_INT16:
 
@@ -156,7 +203,15 @@ void RIBConverterNDArray::onROSMessage(const ros_igtl_bridge::igtlndarray::Const
 	  break;
   }
 
-  ndArrayMsg->SetArray(msg->scalar_type, arrayBase);
+  //	  // iterate and stuff into array
+  //	  for (unsigned i = 0; i < msg->size; i++) {
+  //		  for (unsigned j = 0; j < msg->size.at(i); j++) {
+  //			  index.at(i);
+  //		  }
+  //	  }
+
+  ROS_INFO("Pack message.");
+//  ndArrayMsg->SetArray(msg->scalar_type, arrayBase);
   ndArrayMsg->Pack();
 
   socket->Send(ndArrayMsg->GetPackPointer(), ndArrayMsg->GetPackSize());
